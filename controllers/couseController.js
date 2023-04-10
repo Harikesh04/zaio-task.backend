@@ -28,38 +28,33 @@ function getBusinessDays(startDateStr, endDateStr) {
   return businessDays;
 }
 
-function filterData(arr,totalTime){
-
+function filterData(arr, totalTime) {
   let filteredArr = [];
   console.log(totalTime);
 
-  for (const obj of arr) {
-    if(totalTime- obj.duration>=0){
-      totalTime-=obj.duration;
+  for (let obj of arr) {
+    if (totalTime - obj.duration >= 0) {
+      totalTime -= obj.duration;
       filteredArr.push(obj);
-
-    }else{
+    } else {
       return filteredArr;
     }
-    
   }
-  return filteredArr
+  return filteredArr;
 }
 
-export const uploadCourseData = catchAsynError(async(req,res,next)=>{
+export const uploadCourseData = catchAsynError(async (req, res, next) => {
   const courses = course;
-  
-    await Course.deleteMany({});
-    await Course.create(courses);
-    res.status(200).json({
-      success: true,
-      message: "course uploaded .",
-    });
- 
-})
 
+  await Course.deleteMany({});
+  await Course.create(courses);
+  res.status(200).json({
+    success: true,
+    message: "course uploaded .",
+  });
+});
 
-export const getCourseByDate = catchAsynError(async (req, res,next) => {
+export const getCourseByDate = catchAsynError(async (req, res, next) => {
   const endDate = req.query.Date;
   const hoursUserWillCommit = req.query.hours;
 
@@ -77,26 +72,41 @@ export const getCourseByDate = catchAsynError(async (req, res,next) => {
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
 
-  const startDate = `${year}-${month}-${day}`;
+  let startDate = `${year}-${month}-${day}`;
 
   const businessDaysCount = getBusinessDays(startDate, endDate);
   const totalhours = businessDaysCount * hoursUserWillCommit;
- 
 
   const courses = await Course.find();
+  let timeofSingleDay = hoursUserWillCommit * 60;
+  let days = businessDaysCount;
   courses.sort();
-  
-  const filteredCourses = filterData(courses,totalhours*60);
-  
+  let startdate = new Date(startDate);
+  for (let i = 0; i < courses.length; i++) {
+    if (timeofSingleDay <= 0) {
+      // increment the start date by one day
+      startdate.setDate(startdate.getDate() + 1);
+      // reset the time of day to 0:00:00
+      startdate.setHours(0, 0, 0, 0);
 
- 
+      timeofSingleDay = hoursUserWillCommit * 60;
+      days--;
+      console.log(days);
+    }
+
+    courses[i].date = new Date(startdate);
+    timeofSingleDay -= courses[i].duration;
+
+    if (days <= 0) break;
+  }
+
+  // console.log(courses);
+
+  const filteredCourses = filterData(courses, totalhours * 60);
 
   res.status(200).json({
     startDate,
     businessDaysCount,
-    filteredCourses
-    
-    
-
+    filteredCourses,
   });
 });

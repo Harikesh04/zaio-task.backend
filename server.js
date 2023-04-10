@@ -3,6 +3,7 @@ const app = express();
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import connectDatabase from "./database.js";
+import cors from "cors";
 
 import Course from "./models/course.js";
 import courseRoute from "./routes/courseRoute.js";
@@ -15,6 +16,14 @@ app.use(express.json());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: ['http://127.0.0.1:5174'],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+
 
 if (process.env.NODE_ENV !== "PRODUCTION") {
   dotenv.config({ path: "config/config.env" });

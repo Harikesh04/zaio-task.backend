@@ -65,6 +65,7 @@ export const getCourseByDate = catchAsynError(async (req, res, next) => {
   let enrolledDate = user.createdAt;
 
   const date = new Date(enrolledDate);
+  console.log(date);
 
   date.setDate(date.getDate() + 1);
 

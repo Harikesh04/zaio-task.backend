@@ -4,27 +4,31 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import connectDatabase from "./database.js";
 import cors from "cors";
-
-import Course from "./models/course.js";
-import courseRoute from "./routes/courseRoute.js";
-import userRoute from "./routes/userRoute.js";
-
-
 import cookieParser from "cookie-parser";
 
-app.use(express.json());
 
-app.use(bodyParser.urlencoded({ extended: true }));
+import courseRoute from "./routes/courseRoute.js";
+import userRoute from "./routes/userRoute.js";
+import path from 'path';
+
+
+
+
+app.use(express.json());
 app.use(cookieParser());
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(
   cors({
-    origin: ['http://127.0.0.1:5174'],
+    origin: ['http://localhost:5176'],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
-
-
+console.log("expire");
+console.log(process.env.JWT_SECRET);
 if (process.env.NODE_ENV !== "PRODUCTION") {
   dotenv.config({ path: "config/config.env" });
 }

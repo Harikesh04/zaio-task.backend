@@ -30,7 +30,7 @@ function getBusinessDays(startDateStr, endDateStr) {
 
 function filterData(arr, totalTime) {
   let filteredArr = [];
-  console.log(totalTime);
+
 
   for (let obj of arr) {
     if (totalTime - obj.duration >= 0) {
@@ -65,7 +65,7 @@ export const getCourseByDate = catchAsynError(async (req, res, next) => {
   let enrolledDate = user.createdAt;
 
   const date = new Date(enrolledDate);
-  console.log(date);
+
 
   date.setDate(date.getDate() + 1);
 
@@ -83,25 +83,41 @@ export const getCourseByDate = catchAsynError(async (req, res, next) => {
   let days = businessDaysCount;
   courses.sort();
   let startdate = new Date(startDate);
-  for (let i = 0; i < courses.length; i++) {
-    if (timeofSingleDay <= 0) {
-      // increment the start date by one day
-      startdate.setDate(startdate.getDate() + 1);
-      // reset the time of day to 0:00:00
-      startdate.setHours(0, 0, 0, 0);
+if (startdate.getDay() == 6) { // Saturday
+  startdate.setDate(startdate.getDate() + 2); // add two days to make it Monday
+} else if (startdate.getDay() == 0) { // Sunday
+  startdate.setDate(startdate.getDate() + 1); 
+}
 
-      timeofSingleDay = hoursUserWillCommit * 60;
-      days--;
-      console.log(days);
+for (let i = 0; i < courses.length; i++) {
+  if (timeofSingleDay <= 0) {
+    // increment the start date by one day
+    startdate.setDate(startdate.getDate() + 1);
+    if (startdate.getDay() == 6) { // Saturday
+      startdate.setDate(startdate.getDate() + 2); // add two days to make it Monday
+    } else if (startdate.getDay() == 0) { // Sunday
+      startdate.setDate(startdate.getDate() + 1); // add one day to make it Monday
     }
+    
+    startdate.setHours(0, 0, 0, 0);
 
-    courses[i].date = new Date(startdate);
-    timeofSingleDay -= courses[i].duration;
+    timeofSingleDay = hoursUserWillCommit * 60;
+    days--;
 
-    if (days <= 0) break;
   }
 
-  // console.log(courses);
+  courses[i].date = new Date(startdate);
+  timeofSingleDay -= courses[i].duration;
+
+  if (days <= 0) break;
+}
+
+
+
+
+
+
+
 
   const filteredCourses = filterData(courses, totalhours * 60);
 

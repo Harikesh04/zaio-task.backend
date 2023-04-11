@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import courseRoute from "./routes/courseRoute.js";
 import userRoute from "./routes/userRoute.js";
 import path from 'path';
+import { errorMiddleware } from "./middleware/Error.js";
 
 
 
@@ -27,7 +28,7 @@ app.use(
     credentials: true,
   })
 );
-console.log("expire");
+
 console.log(process.env.JWT_SECRET);
 if (process.env.NODE_ENV !== "PRODUCTION") {
   dotenv.config({ path: "config/config.env" });
@@ -59,7 +60,7 @@ app.get("/", (req, res) => {
 
 
 
-
+app.use(errorMiddleware);
 
 
 
@@ -75,5 +76,6 @@ process.on("unhandledRejection", (err) => {
     process.exit(1);
   });
 });
+
 
 //
